@@ -22,115 +22,144 @@ import org.springframework.util.Log4jConfigurer;
 @ContextConfiguration(locations = { "classpath:spring.xml" })
 public class UserServiceTest {
 
-    static {
-        try {
-            Log4jConfigurer.initLogging("classpath:log4j.properties");
-        } catch (FileNotFoundException ex) {
-            System.err.println("Cannot Initialize log4j");
-        }
-    }
+	static {
+		try {
+			Log4jConfigurer.initLogging("classpath:log4j.properties");
+		} catch (FileNotFoundException ex) {
+			System.err.println("Cannot Initialize log4j");
+		}
+	}
 
-    private Logger      logger = Logger.getLogger(UserServiceTest.class);
+	private Logger logger = Logger.getLogger(UserServiceTest.class);
 
-    @Autowired
-    private UserService userService;
+	@Autowired
+	private UserService userService;
 
-    @Test
-    public void testGetByName() {
-        User user1 = userService.getByName("admin");
-        logger.info("user1:" + user1);
-        User user2 = userService.getByName("admin");// in cache
-        logger.info("user2:" + user2);
-    }
+	@Test
+	public void testGetByName() {
+		User user1 = userService.getByName("admin");
+		logger.info("user1:" + user1);
+		User user2 = userService.getByName("admin");// in cache
+		User user3 = userService.getByName("admin3");// in cache
+		logger.info("user2:" + user2);
+		//测试过期时间
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		logger.info("user1:" + user1);
+	}
 
-    @Test
-    public void testGetByNameDiff() {
-        User user1 = userService.getByName("admin");//not in cache
-        logger.info("user1:" + user1);
-        User user2 = userService.getByName("admin");// in cache
-        logger.info("user2:" + user2);
-        User user3 = userService.getByNameFromDefault("admin");//not in cache , it's different with cache named user
-        logger.info("user3:" + user3);
-        User user4 = userService.getByNameFromDefault("admin");// in cache
-        logger.info("user4:" + user4);
-    }
+	@Test
+	public void testGetByNameDiff() {
+		User user1 = userService.getByName("admin");// not in cache
+		logger.info("user1:" + user1);
+		User user2 = userService.getByName("admin");// in cache
+		User user23 = userService.getByName("admin2");// in cache
+		logger.info("user2:" + user2);
+		User user3 = userService.getByNameFromDefault("admin");// not in cache ,
+																// it's
+																// different
+																// with cache
+																// named user
+		logger.info("user3:" + user3);
+		User user4 = userService.getByNameFromDefault("admin");// in cache
+		logger.info("user4:" + user4);
+	}
 
-    @Test
-    public void testGetByName2() {
-        User user1 = userService.getByName2("admin");
-        logger.info("user1:" + user1);
-        User user2 = userService.getByName2("admin");// not in cache
-        logger.info("user2:" + user2);
-    }
+	@Test
+	public void testGetByName2() {
+		User user1 = userService.getByName2("admin");
+		logger.info("user1:" + user1);
+		User user2 = userService.getByName2("admin");// not in cache
+		logger.info("user2:" + user2);
+		//测试过期时间
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		logger.info("user4:" + user1);
+	}
 
-    @Test
-    public void testGetByName3() {
-        User user1 = userService.getByName3("admin");
-        logger.info("user1:" + user1);
-        User user2 = userService.getByName3("admin");//not in cache
-        logger.info("user2:" + user2);
-        User user3 = userService.getByName3("adm");
-        logger.info("user3:" + user3);
-        User user4 = userService.getByName3("adm");//in cache
-        logger.info("user4:" + user4);
-    }
+	@Test
+	public void testGetByName3() {
+		User user1 = userService.getByName3("admin");
+		logger.info("user1:" + user1);
+		User user2 = userService.getByName3("admin");// not in cache
+		logger.info("user2:" + user2);
+		User user3 = userService.getByName3("adm");
+		logger.info("user3:" + user3);
+		User user4 = userService.getByName3("adm");// in cache
+		logger.info("user4:" + user4);
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		logger.info("user4:" + user1);
+	}
 
-    @Test
-    public void testGetByNameAndId() {
-        User user1 = userService.getByNameAndId("admin", 666L, Boolean.FALSE);
-        logger.info("user1:" + user1);
-        User user2 = userService.getByNameAndId("admin", 665L, Boolean.FALSE);//not in cache
-        logger.info("user2:" + user2);
-        User user3 = userService.getByNameAndId("admin", 666L, Boolean.TRUE);//in cache
-        logger.info("user3:" + user3);
-    }
+	@Test
+	public void testGetByNameAndId() {
+		User user1 = userService.getByNameAndId("admin", 666L, Boolean.FALSE);
+		logger.info("user1:" + user1);
+		User user2 = userService.getByNameAndId("admin", 665L, Boolean.FALSE);// not
+																				// in
+																				// cache
+		logger.info("user2:" + user2);
+		User user3 = userService.getByNameAndId("admin", 666L, Boolean.TRUE);// in
+																				// cache
+		logger.info("user3:" + user3);
+	}
 
-    @Test
-    public void testUpdate() {
-        User user1 = userService.getByName("admin");
-        logger.info("user1:" + user1);
+	@Test
+	public void testUpdate() {
+		User user1 = userService.getByName("admin");
+		logger.info("user1:" + user1);
 
-        User user = new User();
-        user.setUsername("admin");
-        userService.update(user);//清除了缓存
+		User user = new User();
+		user.setUsername("admin");
+		userService.update(user);// 清除了缓存
 
-        User user2 = userService.getByName("admin");// not in cache
-        logger.info("user2:" + user2);
-    }
+		User user2 = userService.getByName("admin");// not in cache
+		logger.info("user2:" + user2);
+	}
 
-    @Test
-    public void testUpdate2() {
-        User user1 = userService.getByName("admin");
-        logger.info("user1:" + user1);
+	@Test
+	public void testUpdate2() {
+		User user1 = userService.getByName("admin");
+		logger.info("user1:" + user1);
 
-        User user = new User();
-        user.setUsername("admin");
-        user.setId(0L);
-        user.setPassword("test set");
-        userService.update2(user);//更新了缓存
+		User user = new User();
+		user.setUsername("admin");
+		user.setId(0L);
+		user.setPassword("test set");
+		userService.update2(user);// 更新了缓存
 
-        User user2 = userService.getByName("admin");//in cache
-        logger.info("user2:" + user2);
-    }
+		User user2 = userService.getByName("admin");// in cache
+		logger.info("user2:" + user2);
+	}
 
-    @Test
-    public void testGetById() {
-        Long id = 444L;
-        User user1 = userService.getById(id);
-        logger.info("user1:" + user1);
+	@Test
+	public void testGetById() {
+		Long id = 444L;
+		User user1 = userService.getById(id);
+		logger.info("user1:" + user1);
 
-        User user2 = userService.getById(id);// in cache
-        logger.info("user2:" + user2);
-    }
+		User user2 = userService.getById(id);// in cache
+		logger.info("user2:" + user2);
+	}
 
-    @Test
-    public void testReload() {
-        userService.getByName("admin");
-        userService.reload();
-        //keys * is empty
-    }
+	@Test
+	public void testReload() {
+		userService.getByName("admin");
+		userService.reload();
+		// keys * is empty
+	}
 
-    public void test() {
-        System.out.println("hello world");
-    }
+	public void test() {
+		System.out.println("hello world");
+	}
 }
